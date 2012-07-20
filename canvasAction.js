@@ -7,7 +7,7 @@
  parameters: coordinate of the upper left corner of the rectangle object, and also its width and height.
  Function:
     I completed several event types: onclick, ontouchstart, ontouchmove, ontouchend, onlongtap, onwipe, ondbclick,
- onorientationchange, onzoom, ondrag.
+ onorientationchange, onresize, ondrag.
  How to use:
     Include this javascript file, init the object like this:
 		var ca = new canvasAction(0, 200, 300, 120, canvas);
@@ -30,15 +30,11 @@ var canvasAction = (function(window, undefined){
 			if(that.isInArea(pageX, pageY, coorX, coorY, rectWidth, rectHeight)){
 				that.inAreaStatus = true;
 				//touchstart event
-				if(that.ontouchstart && typeof that.ontouchstart == "function"){
-					that.ontouchstart(e);
-				}					
+				that.fire(that.ontouchstart, e);
 				//longtap event
 				that.longtapStart = new Date;
 				that.longtapTimeout = setTimeout(function(){
-					if(that.onlongtap && typeof that.onlongtap == "function"){
-						that.onlongtap(e);
-					}
+					that.fire(that.onlongtap, e);
 				}, that.longtapTime);
 			}
 		};
@@ -46,9 +42,7 @@ var canvasAction = (function(window, undefined){
 			that.isMoved = true;
 			if(!that.inAreaStatus)
 				return false;
-			if(that.ontouchmove && typeof that.ontouchmove == "function"){
-				that.ontouchmove(e);
-			}
+			that.fire(that.ontouchmove, e);
 			//for longtap action
 			clearTimeout(that.longtapTimeout);
 			//for wipe action
@@ -73,26 +67,20 @@ var canvasAction = (function(window, undefined){
 			if(!that.inAreaStatus){
 				return false;
 			}
-			if(that.ontouchend && typeof that.ontouchend == "function"){
-				that.ontouchend(e);
-			}
+			that.fire(that.ontouchend, e);
 			//decide to trigger longtap or not.				
 			if((new Date)-that.longtapStart<750)
 				clearTimeout(that.longtapTimeout);
 			//for wipe action
 			if(that.wipeDirection){
-				if(that.onwipe && typeof that.onwipe == "function"){
-					e.direction = that.wipeDirection;
-					that.onwipe(e);
-				}
+				e.direction = that.wipeDirection;
+				that.fire(that.onwipe, e);
 				that.wipeDirection = null;
 			}
 			//dbclick action
 			if(!that.isMoved){
 				if((new Date) - that.lastTapTime < 200){
-					if(that.ondbclick && typeof that.ondbclick == "function"){
-						that.ondbclick(e);
-					}
+					that.fire(that.ondbclick, e);
 				}
 				that.lastTapTime = new Date;
 			}
@@ -104,17 +92,17 @@ var canvasAction = (function(window, undefined){
 			var pageX = e.pageX;
 			var pageY = e.pageY;
 			if(that.isInArea(pageX, pageY, coorX, coorY, rectWidth, rectHeight)){	
-				if(that.onclick && typeof that.onclick == "function"){
-					that.onclick(e);
-				}
+				that.fire(that.onclick, e);
 			}
 		}
 		window.addEventListener("orientationchange", function(e){
 			e.orientation = window.orientation;
-			if(that.onorientationchange && typeof that.onorientationchange == "function"){
-				that.onorientationchange(e);
-			}
+			that.fire(that.onorientationchange, e);
 		}, false);
+		window.addEventListener("resize", function(e){
+			that.fire(that.onresize, e);
+		}, false);
+		
 	};
 	CA.prototype = {
 		startX: 0,
@@ -131,7 +119,7 @@ var canvasAction = (function(window, undefined){
 		onlongtap: null,
 		onwipe: null,
 		ondbclick: null,
-		onzoom: null,
+		onresize: null,
 		onorientationchange: null,
 		ondrag: null,
 		isInArea: function(pageX, pageY, coorX, coorY, rectWidth, rectHeight){
@@ -139,6 +127,11 @@ var canvasAction = (function(window, undefined){
 				return true;
 			}
 			return false;
+		},
+		fire: function(func, e){
+			if(func && typeof func == "function"){
+				func(e);
+			}
 		}
 	};
 	return CA;
