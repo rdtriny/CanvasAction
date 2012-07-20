@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html manifest="test.manifest">
+<head>
+<meta http-equiv=content-type content="text/html; charset=utf-8">
+<meta name=HandheldFriendly content=true />
+<meta name=viewport content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,target-densitydpi=high-dpi"/>
+<style type="text/css">
+*{-webkit-user-select:none;-webkit-tap-highlight-color:rgba(255,255,255,0)}
+</style>
+<script type="text/javascript" src="canvasAction.js"></script>
+</head>
+
+<body>
+<canvas id="canvas" style="position:absolute;left:0">
+	
+</canvas>
+<script type="text/javascript">
+	var canvas = document.getElementById("canvas");
+	canvas.width = window.innerWidth-10;
+	canvas.height = window.innerHeight-20;
+	if(canvas.getContext)
+		var ctx = canvas.getContext("2d");
+	else
+		alert("Don't support canvas");
+
+	//rect(ctx, config.x, config.y, config.len, config.len, "rgb(100,100,100)");
+	//rhom(ctx, 20, 30, config.x, config.y, config.len);
+
+	var degree = Math.PI/180;
+	var tmp2 = function(){rotate(60, 180, 30, {x:200,y:300,width:100,height:120}, function(){}, 30);};
+	var tmp = function(){rotate(60, 180, 30, {x:100,y:300,width:100,height:120}, tmp2);};
+	function startRotate(){
+		rotate(90, 180, 30, {x:0,y:300, width:100,height:120}, tmp);
+	};
+	
+	var pack2 = function(){rotate(150, 90, -30, {x:0,y:300,width:100,height:120}, function(){}, 30);};
+	var pack1 = function(){rotate(150, 0, -30, {x:100,y:300,width:100,height:120}, pack2);};
+	function packRotate(){
+		rotate(150, 0, -30, {x:200,y:300,width:100,height:120}, pack1, 30);
+	}
+	/*
+		rotate function:
+		开始角度, 终止角度, 配置(矩形起点x,y坐标, 矩形宽度, 高度), 回调函数, 右下角圆弧半径
+	*/
+	function rotate(startAngle, endAngle, stepAngle, config, callback, radius){
+		var angle = startAngle;
+		var interval = setInterval(function(){
+			var an = angle*degree;
+			if(stepAngle > 0){
+				if(angle<90){
+					ctx.clearRect(0, 0, 300, 300);
+					restoreState(ctx, config, stepAngle);
+					rhom(ctx, 100*Math.cos(an)*Math.cos(an), 25*Math.sin(an)*Math.sin(an), config.x, config.y, config.height);
+					angle += stepAngle;
+				}
+				else if(angle>=90 && angle<endAngle){
+					ctx.clearRect(0, 0, 300, 300);
+					restoreState(ctx, config, stepAngle);
+					rhom(ctx, -100*Math.cos(an)*Math.cos(an), 25*Math.sin(an)*Math.sin(an), config.x, config.y, config.height);
+					angle += stepAngle;
+				}
+				else if(angle == endAngle){
+					ctx.clearRect(0, 0, 300, 300);
+					restoreState(ctx, config, stepAngle);
+					rhom(ctx, -100*Math.cos(an)*Math.cos(an), 25*Math.sin(an)*Math.sin(an), config.x, config.y, config.height, radius);
+					angle += stepAngle;
+				}
+				else{
+					clearInterval(interval); 
+					setTimeout(function(){
+						callback();
+					}, 100);
+				}
+			}
+			else{
+				if(angle>=endAngle && angle<90){
+					ctx.clearRect(0, 0, 300, 300);
+					restoreState(ctx, config, stepAngle);
+					rhom(ctx, 100*Math.cos(an)*Math.cos(an), 25*Math.sin(an)*Math.sin(an), config.x, config.y, config.height);
+					angle += stepAngle;
+				}
+				else if(angle>=90){
+					ctx.clearRect(0, 0, 300, 300);
+					restoreState(ctx, config, stepAngle);
+					rhom(ctx, -100*Math.cos(an)*Math.cos(an), 25*Math.sin(an)*Math.sin(an), config.x, config.y, config.height);
+					angle += stepAngle;
+				}
+				else{
+					clearInterval(interval); 
+					setTimeout(function(){
+						callback();
+					}, 100);
+				}
+			}
+		}, 30);
+	}
+	/*
+		画出前面的被抹去的菱形
+	*/
+	function restoreState(cctx, config, stepAngle){
+		if(stepAngle>0){
+			for(var i=100; i<=config.x; i+=100){
+				rect(cctx, i, config.y-config.height, config.width, config.height, "rgb(255, 120, 0)");
+			}
+		}
+		else{
+			for(var i=config.x; i>=100; i-=100){
+				rect(cctx, i, config.y-config.height, config.width, config.height, "rgb(255, 120, 0)");
+			}
+		}
+	}
+	/*
+		画出矩形
+	*/
+	function rect(cctx, x, y, width, height, color){
+		cctx.beginPath();
+		cctx.fillStyle = color;
+		cctx.strokeStyle = "rgb(0, 0, 0)";
+		cctx.moveTo(x,y);
+		cctx.lineTo(x-width, y);
+		cctx.lineTo(x-width, y+height);
+		cctx.lineTo(x, y+height);
+		cctx.lineTo(x, y);
+		cctx.fill();
+		cctx.stroke();
+		cctx.closePath();
+	}
+	
+	/*
+		画出菱形
+	*/
+	function rhom(cctx, dx, dy, ox, oy, height, radius){
+		cctx.beginPath();
+		cctx.fillStyle = "rgb(255, 102, 0)";
+		cctx.strokeStyle = "rgb(0, 0, 0)";
+		cctx.moveTo(ox, oy);		
+		if(!radius){					
+			cctx.lineTo(ox-dx, oy-dy);
+		}
+		else {
+			cctx.lineTo(ox-dx-radius, oy-dy);
+			cctx.quadraticCurveTo(ox-dx, oy-dy, ox-dx, oy-dy-radius);
+		}
+		cctx.lineTo(ox-dx, oy-height-dy);
+		cctx.lineTo(ox, oy-height);
+		cctx.lineTo(ox, oy);
+		cctx.fill();
+		cctx.stroke();
+		cctx.closePath();
+	}
+	
+	var ca = new canvasAction(0, 200, 300, 120, canvas);
+	ca.onclick = function(){
+		if(!ca.isShown){
+			startRotate();
+			ca.isShown = true;
+		}
+	};
+	ca.onlongtap = function(){
+		console.log("long Tap !!!!!");
+	}
+	ca.ontouchstart = function(){
+		console.log("touch start");
+	}
+	ca.ontouchmove = function(){
+		console.log("touch move");
+	}
+	ca.ontouchend = function(){
+		console.log("touch end");
+	}
+	ca.onwipe = function(e){
+		console.log(e.direction);
+		if(e.direction === "left" && ca.isShown){
+			packRotate();
+			ca.isShown = false;
+		}
+	}
+	ca.ondbclick = function(){
+		console.log("double click");
+	}
+	ca.onorientationchange = function(e){
+		console.log("orientaion change to "+ e.orientation);
+	}
+</script>
+</body>
+</html>
