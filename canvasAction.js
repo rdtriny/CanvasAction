@@ -109,7 +109,11 @@ var canvasAction = (function(window, undefined){
 		window.addEventListener("resize", function(e){
 			that.fire(that.onresize, e);
 		}, false);
-		
+		window.applicationCache.addEventListener('updateready', function(e) {
+			if (window.applicationCache.status == window.applicationCache.UPDATEREADY){
+				that.fire(that.onswapcache, e);
+			}
+		}, false);
 	};
 	CA.prototype = {
 		startX: 0,
@@ -129,6 +133,7 @@ var canvasAction = (function(window, undefined){
 		onresize: null,
 		onorientationchange: null,
 		ondrag: null,
+		onswapcache: null,
 		isInArea: function(pageX, pageY, coorX, coorY, rectWidth, rectHeight){
 			if(pageX>=coorX && pageX<= (coorX+rectWidth) && pageY >= coorY && pageY<=(coorY+rectHeight)){
 				return true;
