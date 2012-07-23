@@ -21,7 +21,14 @@
 
  ********************************************************/
 var canvasAction = (function(window, undefined){
-	var CA = function(coorX, coorY, rectWidth, rectHeight, canvas){
+	var CA = function(caObj, canvas){
+		var coorX = caObj.coorX;
+		var coorY = caObj.coorY;
+		var rectWidth = caObj.rectWidth;
+		var rectHeight = caObj.rectHeight;
+		if(typeof coorX!="number" || typeof coorY!="number" || typeof rectWidth!="number" || typeof rectHeight!="number"){
+			alert("Init the canvas action object failed, wrong argument type!");
+		}
 		var that = this;
 		canvas.ontouchstart = function(e){
 			var pageX,pageY;

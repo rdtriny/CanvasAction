@@ -95,7 +95,7 @@
 		}, 30);
 	}
 	/*
-		画出前面的被抹去的菱形
+		画出前面的被抹去的矩形
 	*/
 	function restoreState(cctx, config, stepAngle){
 		if(stepAngle>0){
@@ -148,8 +148,24 @@
 		cctx.stroke();
 		cctx.closePath();
 	}
+	/*
+		画出梯形, 左下角坐标，梯形斜边为矩形时的高度与宽度，斜边与垂线夹角[0,45]
+	*/
+	function trap(cctx, x, y, height, width, angle, color){
+		var an = angle * degree;
+		cctx.beginPath();
+		cctx.fillStyle = "rgb(255, 102, 0)";
+		cctx.strokeStyle = "rdb(0,0,0);
+		cctx.moveTo(x, y);
+		cctx.lineTo(x-height*Math.sin(an), y+height*Math.cos(an));
+		cctx.lineTo(x+width+height*Math.sin(an), y+height*Math.cos(an));
+		cctx.lineTo(x+width, y);
+		cctx.lineTo(x,y);
+		cctx.fill();
+		cctx.closePath();
+	}
 	
-	var ca = new canvasAction(0, 200, 300, 120, canvas);
+	var ca = new canvasAction({coorX:0,coorY:200,rectWidth:300,rectHeight:120}, canvas);
 	ca.onclick = function(){
 		if(!ca.isShown){
 			startRotate();
