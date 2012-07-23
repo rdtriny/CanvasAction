@@ -94,6 +94,31 @@
 			}
 		}, 30);
 	}
+	
+	function rotatedown(){
+		rotateDown(0, 180, 30,{x:200,y:300,width:100,height:120}, function(){});
+	}
+	
+	function rotateDown(startAngle, endAngle, setAngle, config, callback){
+		var angle = startAngle;
+		var interval = setInterval(function(){
+			if(angle >= 90){
+				var an = (180-angle)/4*degree;
+			}
+			else{
+				an = (angle/4*degree);
+			}
+			trap(ctx, config.x, config.y, config.width, config.height, an);
+			angle += stepAngle;
+			if(angle > endAngle){
+				clearInterval(interval);
+				setTimeout(function(){
+					callback();
+				}, 100);
+			}
+		}, 30);
+	}
+	
 	/*
 		画出前面的被抹去的矩形
 	*/
@@ -151,8 +176,7 @@
 	/*
 		画出梯形, 左下角坐标，梯形斜边为矩形时的高度与宽度，斜边与垂线夹角[0,45]
 	*/
-	function trap(cctx, x, y, height, width, angle, color){
-		var an = angle * degree;
+	function trap(cctx, x, y, width, height, an, color){
 		cctx.beginPath();
 		cctx.fillStyle = "rgb(255, 102, 0)";
 		cctx.strokeStyle = "rdb(0,0,0);
@@ -190,6 +214,9 @@
 			packRotate();
 			ca.isShown = false;
 		}
+		else if(e.direction === "down" && ca.isShown){
+			rotatedown();
+		}
 	}
 	ca.ondbclick = function(){
 		console.log("double click");
@@ -199,6 +226,10 @@
 	}
 	ca.onresize = function(e){
 		console.log("resize");
+	}
+	ca.onswapcache = function(e){
+		window.applicationCache.swapCache();
+		console.log("swape Cache!");
 	}
 </script>
 </body>
