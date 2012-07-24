@@ -30,7 +30,7 @@ var canvasAction = (function(window, undefined){
 			alert("Init the canvas action object failed, wrong argument type!");
 		}
 		var that = this;
-		canvas.ontouchstart = function(e){
+		canvas.addEventListener("touchstart", function(e){
 			var pageX,pageY;
 			that.startX = pageX = e.touches[0].pageX;
 			that.startY = pageY = e.touches[0].pageY;
@@ -44,8 +44,8 @@ var canvasAction = (function(window, undefined){
 					that.fire(that.onlongtap, e);
 				}, that.longtapTime);
 			}
-		};
-		canvas.ontouchmove = function(e){
+		}, false);
+		canvas.addEventListener("touchmove", function(e){
 			that.isMoved = true;
 			if(!that.inAreaStatus)
 				return false;
@@ -69,8 +69,8 @@ var canvasAction = (function(window, undefined){
 				else
 					that.wipeDirection = "left";
 			}
-		};
-		canvas.ontouchend = function(e){
+		},false);
+		canvas.addEventListener("touchend", function(e){
 			if(!that.inAreaStatus){
 				return false;
 			}
@@ -94,14 +94,14 @@ var canvasAction = (function(window, undefined){
 			
 			that.isMoved = false;
 			that.inAreaStatus = false;
-		};
-		canvas.onclick = function(e){
+		},false);
+		canvas.addEventListener("click", function(e){
 			var pageX = e.pageX;
 			var pageY = e.pageY;
 			if(that.isInArea(pageX, pageY, coorX, coorY, rectWidth, rectHeight)){	
 				that.fire(that.onclick, e);
 			}
-		}
+		},false);
 		window.addEventListener("orientationchange", function(e){
 			e.orientation = window.orientation;
 			that.fire(that.onorientationchange, e);
